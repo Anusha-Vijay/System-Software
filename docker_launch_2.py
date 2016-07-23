@@ -4,7 +4,7 @@ import logging
 import uuid
 import signal
 
-import mesos.inter
+import mesos.interface
 from mesos.interface import Scheduler, mesos_pb2
 import mesos.native
 from mesos.native import MesosSchedulerDriver
@@ -83,7 +83,7 @@ def start_docker(self,driver,offers):
     tasks=[]
     task=new_docker_task(offer,"Hello Docker","echo hello world")
     logging.info("Start %s tasks", self.runningTasks)
-    ogging.info("Added task %s "
+    logging.info("Added task %s "
                              "using offer %s.",
                              task.task_id.value,
                              offer.id.value)
@@ -91,8 +91,33 @@ def start_docker(self,driver,offers):
     return status
             
 
+    
+def shutdown(signal, frame):
+    logging.info("Shutdown signal")
+    driver.stop()
+    time.sleep(5)
+    sys.exit(0)
 
+def launchFramework():
+    framework = mesos_pb2.FrameworkInfo()
+    framework.user = ""  # Have Mesos fill in the current user.
+    framework.name = "hello-world"
+    dockerScheduler = dockerScheduler()
+    driver = MesosSchedulerDriver(
+        dockerScheduler,
+        framework,
+        "zk://localhost:2181/mesos"  # assumes running on the master
+    )
+    driver.start()
 
+    
+
+def startdocker():
+    launchFramework()
+    if status.update == TASK_RUNNING
+    return true 
+    else 
+    return false
 
 class dockerScheduler(Scheduler):
     def __init__(self):
@@ -124,35 +149,6 @@ class dockerScheduler(Scheduler):
             self.runningTasks -= 1
             logging.info("Running tasks: %s", self.runningTasks)
              reviveTask(self,driver,update)
-
-    
-
-def shutdown(signal, frame):
-    logging.info("Shutdown signal")
-    driver.stop()
-    time.sleep(5)
-    sys.exit(0)
-
-def launchFramework():
-    framework = mesos_pb2.FrameworkInfo()
-    framework.user = ""  # Have Mesos fill in the current user.
-    framework.name = "hello-world"
-    dockerScheduler = dockerScheduler()
-    driver = MesosSchedulerDriver(
-        dockerScheduler,
-        framework,
-        "zk://localhost:2181/mesos"  # assumes running on the master
-    )
-    driver.start()
-
-    
-
-def startdocker():
-    launchFramework()
-    if status.update == TASK_RUNNING
-    return true 
-    else 
-    return false
 
 if __name__ == '__main__':
     doc1 = startdocker()
