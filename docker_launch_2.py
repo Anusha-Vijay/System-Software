@@ -4,7 +4,7 @@ import logging
 import uuid
 import signal
 
-import mesos.interface
+import mesos.inter
 from mesos.interface import Scheduler, mesos_pb2
 import mesos.native
 from mesos.native import MesosSchedulerDriver
@@ -83,7 +83,7 @@ def start_docker(self,driver,offers):
     tasks=[]
     task=new_docker_task(offer,"Hello Docker","echo hello world")
     logging.info("Start %s tasks", self.runningTasks)
-    logging.info("Added task %s "
+    ogging.info("Added task %s "
                              "using offer %s.",
                              task.task_id.value,
                              offer.id.value)
@@ -91,7 +91,6 @@ def start_docker(self,driver,offers):
     return status
             
 
-    
 def shutdown(signal, frame):
     logging.info("Shutdown signal")
     driver.stop()
@@ -109,6 +108,7 @@ def launchFramework():
         "zk://localhost:2181/mesos"  # assumes running on the master
     )
     driver.start()
+    
 
     
 
@@ -118,6 +118,7 @@ def startdocker():
     return true 
     else 
     return false
+
 
 class dockerScheduler(Scheduler):
     def __init__(self):
@@ -149,6 +150,10 @@ class dockerScheduler(Scheduler):
             self.runningTasks -= 1
             logging.info("Running tasks: %s", self.runningTasks)
              reviveTask(self,driver,update)
+
+    
+
+
 
 if __name__ == '__main__':
     doc1 = startdocker()
