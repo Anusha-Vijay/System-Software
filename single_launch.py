@@ -136,14 +136,14 @@ if __name__ == '__main__':
 
     framework.principal = "Launch-Docker-Framework"
     mesosScheduler = LaunchDocker(implicitAcknowledgements)
-    driver = mesos.native.MesosSchedulerDriver(
+    driver = MesosSchedulerDriver(
     mesosScheduler,
     framework,
     "zk://172.31.3.24:2181/mesos")  # I suppose here that mesos master url is local
-
     driver.run()
+    
     logging.info("Listening for Ctrl-C")
-    signal.signal(signal.SIGINT, shutdown)
+    signal.signal(signal.SIGINT, exit)
     while True:
         time.sleep(5)
     sys.exit(0)
