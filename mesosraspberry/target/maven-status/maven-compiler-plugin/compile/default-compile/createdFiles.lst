@@ -1,0 +1,4 @@
+org/systemsoftware/mesosraspberry/DataStore.class
+org/systemsoftware/mesosraspberry/FrameworkStarter.class
+org/systemsoftware/mesosraspberry/SlaveLauncher.class
+org/systemsoftware/mesosraspberry/DockerPIScheduler.class
