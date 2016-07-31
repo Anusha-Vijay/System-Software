@@ -5,8 +5,13 @@ import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Created by anusha vijay
@@ -16,6 +21,8 @@ public class DockerPIScheduler implements Scheduler {
     String dockerName;
     AtomicInteger taskIDGenerator = new AtomicInteger();
     boolean launched;
+    List<Protos.TaskInfo> tasksList = new ArrayList<Protos.TaskInfo>();
+    List<Protos.TaskID> tasksID = new ArrayList<Protos.TaskID>();
 
     public DockerPIScheduler(String dockerName) {
         this.dockerName = dockerName;
@@ -24,18 +31,18 @@ public class DockerPIScheduler implements Scheduler {
 
     @Override
     public void registered(SchedulerDriver schedulerDriver, Protos.FrameworkID frameworkID, Protos.MasterInfo masterInfo) {
-
+        System.out.println("Scheduler registered with id " + frameworkID.getValue());
     }
 
     @Override
     public void reregistered(SchedulerDriver schedulerDriver, Protos.MasterInfo masterInfo) {
-
+        System.out.println("Scheduler re-registered with Master: "+ masterInfo.getHostname());
     }
 
     @Override
     public void resourceOffers(SchedulerDriver schedulerDriver, List<Protos.Offer> list) {
 
-        List<Protos.TaskInfo> tasksList = new ArrayList<Protos.TaskInfo>();
+
         List<Protos.OfferID> offerList = new ArrayList<Protos.OfferID>();
         for (Protos.Offer offer : list) {
             System.out.println("Got offer");
@@ -43,6 +50,9 @@ public class DockerPIScheduler implements Scheduler {
                 // generate a unique task ID
                 Protos.TaskID taskId = Protos.TaskID.newBuilder()
                         .setValue(Integer.toString(taskIDGenerator.incrementAndGet())).build();
+                tasksID.add(taskId);
+                System.out.println("Added Task ID:" + taskId.getValue());
+
 
                 System.out.println("Launching task " + taskId.getValue());
 
@@ -85,13 +95,37 @@ public class DockerPIScheduler implements Scheduler {
 
     }
 
+
     @Override
     public void offerRescinded(SchedulerDriver schedulerDriver, Protos.OfferID offerID) {
+        launched=false;
+    //Case when the slave is lost or when Another framework is using the resources offered.
+        // Status update is TASK_LOST when we use that offer and the slave is lost
+        // Request for resources. accept it. Launch it.
+
+    //schedulerDriver.requestResources(Collection<Protos.Request> requests);
 
     }
 
     @Override
     public void statusUpdate(SchedulerDriver schedulerDriver, Protos.TaskStatus taskStatus) {
+        System.out.println("Status update: task "+taskStatus.getTaskId().getValue()+" state is "+taskStatus.getState());
+        if (taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)){
+            //Need to send an update to the Global master saying its finished
+            schedulerDriver.stop();
+
+        if (taskStatus.getState().equals(Protos.TaskState.TASK_LOST) || taskStatus.getState().equals(Protos.TaskState.TASK_FAILED)){
+            System.out.println(" Task "+taskStatus.getTaskId()+" has "+ taskStatus.getState()+"Relaunch task ");
+            //Need to send an update to the Global master saying its finished
+        }
+
+
+
+        } else {
+            System.out.println("Task "+taskStatus.getTaskId().getValue()+" has message "+taskStatus.getMessage());
+            //Need to send an update to the Global Master about status
+            //Relaunching it with new offer
+        }
 
     }
 
@@ -102,11 +136,16 @@ public class DockerPIScheduler implements Scheduler {
 
     @Override
     public void disconnected(SchedulerDriver schedulerDriver) {
+        System.out.println("Scheduler Disconnected");
 
     }
 
     @Override
     public void slaveLost(SchedulerDriver schedulerDriver, Protos.SlaveID slaveID) {
+
+        // Need to send a put request saying this slave was lost
+        // Request resources from another slave.
+        // Launch tasks
 
     }
 

@@ -1,7 +1,5 @@
 package org.systemsoftware.mesosraspberry;
 
-import org.apache.mesos.MesosSchedulerDriver;
-import org.apache.mesos.Protos;
 import org.apache.mesos.Protos.FrameworkInfo;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -23,6 +21,7 @@ public class FrameworkStarter {
         int timeOut = 0;
 
         ds.setMesosHome(args[2]);
+        ds.setMesosIP(args[0]);
 
         // creating a framework object
         FrameworkInfo.Builder mesosFramework = FrameworkInfo.newBuilder()
@@ -66,7 +65,7 @@ public class FrameworkStarter {
         // Tells the Jersey Servlet which REST service/class to load.
         jerseyServlet.setInitParameter(
                 "jersey.config.server.provider.classnames",
-                SlaveLauncher.class.getCanonicalName());
+                Launcher.class.getCanonicalName());
 
         try {
             appServer.start();
