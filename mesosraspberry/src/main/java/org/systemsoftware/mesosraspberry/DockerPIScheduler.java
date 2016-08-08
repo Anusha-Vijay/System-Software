@@ -89,9 +89,31 @@ public class DockerPIScheduler implements Scheduler {
                 Protos.Filters filters = Protos.Filters.newBuilder().setRefuseSeconds(1).build();
 
 //                schedulerDriver.launchTasks(offer.getId(), tasksList, filters);
-                schedulerDriver.launchTasks(offerList, tasksList, filters);
+
+                try {
+                    //System.out.println("Sleeping for 5 seconds");
+                    Thread.sleep(1000);
+                    schedulerDriver.launchTasks(offerList, tasksList, filters);
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
 
                 launched=launched-1;
+
+                if(launched==0){
+                    try {
+                        System.out.println("Sleeping for 5 seconds");
+                        Thread.sleep(5000);
+                        schedulerDriver.stop();
+
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+
 
                 // url put reqest
             }
@@ -113,25 +135,40 @@ public class DockerPIScheduler implements Scheduler {
 
     @Override
     public void statusUpdate(SchedulerDriver schedulerDriver, Protos.TaskStatus taskStatus) {
-        System.out.println("Status update: task "+taskStatus.getTaskId().getValue()+" state is "+taskStatus.getState());
-        if (taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)){
+
+        //System.out.println("Status update: task "+taskStatus.getTaskId().getValue()+" state is "+taskStatus.getState());
+
+        if (taskStatus != null) {
+            System.out.println("Status update: task " + taskStatus.getTaskId().getValue() + " state is " + taskStatus.getState());
+
+            //if (taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)) {
             //Need to send an update to the Global master saying its finished
-            schedulerDriver.stop();
+            //schedulerDriver.stop();}
 
-        if (taskStatus.getState().equals(Protos.TaskState.TASK_LOST) || taskStatus.getState().equals(Protos.TaskState.TASK_FAILED)){
-            System.out.println(" Task "+taskStatus.getTaskId()+" has "+ taskStatus.getState()+"Relaunch task ");
-            //Need to send an update to the Global master saying its finished
-        }
+//                if (taskStatus.getState().equals(Protos.TaskState.TASK_LOST) || taskStatus.getState().equals(Protos.TaskState.TASK_FAILED)) {
+//                    System.out.println(" Task " + taskStatus.getTaskId() + " has " + taskStatus.getState() + "Relaunch task ");
+//                    //launched=launched+1;
+//                    //Need to send an update to the Global master saying its finished
+//                }
+            //}
 
-
-
-        } else {
-            System.out.println("Task "+taskStatus.getTaskId().getValue()+" has message "+taskStatus.getMessage());
+            //else
+            if (taskStatus.getState().equals(Protos.TaskState.TASK_FAILED) || taskStatus.getState().equals(Protos.TaskState.TASK_LOST)) {
+                System.out.println("Task " + taskStatus.getTaskId().getValue() + " has message " + taskStatus.getMessage());
+            }
+            //launched=launched+1;
             //Need to send an update to the Global Master about status
             //Relaunching it with new offer
+
+
+//        if (Integer.parseInt(taskStatus.getTaskId().getValue()) == 5 && taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)) {
+//            schedulerDriver.stop();
         }
 
     }
+
+
+
 
     @Override
     public void frameworkMessage(SchedulerDriver schedulerDriver, Protos.ExecutorID executorID, Protos.SlaveID slaveID, byte[] bytes) {

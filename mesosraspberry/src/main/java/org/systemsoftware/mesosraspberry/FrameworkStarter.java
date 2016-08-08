@@ -46,7 +46,7 @@ public class FrameworkStarter {
             mesosFramework.setCheckpoint(true);
         }
 
-        String dockerName = args[1];
+        String dockerName = ds.getDockerImageName();
 //
 //         Create a scheduler object
        dockerScheduler = new DockerPIScheduler(dockerName);
