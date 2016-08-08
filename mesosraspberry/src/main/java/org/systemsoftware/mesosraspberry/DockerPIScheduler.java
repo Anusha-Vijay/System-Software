@@ -25,7 +25,7 @@ public class DockerPIScheduler implements Scheduler {
         this.dockerName = dockerName;
         //*this.launched = false;
         //this is new
-        this.launched=5;
+        this.launched=2;
     }
 
     @Override
@@ -102,16 +102,16 @@ public class DockerPIScheduler implements Scheduler {
 
                 launched=launched-1;
 
-                if(launched==0){
-                    try {
-                        System.out.println("Sleeping for 5 seconds");
-                        Thread.sleep(5000);
-                        schedulerDriver.stop();
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
+//                if(launched==0){
+//                    try {
+//                        System.out.println("Sleeping for 5 seconds");
+//                        Thread.sleep(5000);
+//                        schedulerDriver.stop();
+//
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
 
 
 
@@ -141,9 +141,9 @@ public class DockerPIScheduler implements Scheduler {
         if (taskStatus != null) {
             System.out.println("Status update: task " + taskStatus.getTaskId().getValue() + " state is " + taskStatus.getState());
 
-            //if (taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)) {
+            if (taskStatus.getState().equals(Protos.TaskState.TASK_FINISHED)) {
             //Need to send an update to the Global master saying its finished
-            //schedulerDriver.stop();}
+            schedulerDriver.stop();}
 
 //                if (taskStatus.getState().equals(Protos.TaskState.TASK_LOST) || taskStatus.getState().equals(Protos.TaskState.TASK_FAILED)) {
 //                    System.out.println(" Task " + taskStatus.getTaskId() + " has " + taskStatus.getState() + "Relaunch task ");
