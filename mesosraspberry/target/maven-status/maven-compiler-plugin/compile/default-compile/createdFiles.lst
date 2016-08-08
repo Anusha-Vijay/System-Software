@@ -1,4 +1,5 @@
 org/systemsoftware/mesosraspberry/FrameworkStarter.class
 org/systemsoftware/mesosraspberry/DockerPIScheduler.class
+org/systemsoftware/mesosraspberry/SendInfo.class
 org/systemsoftware/mesosraspberry/DataStore.class
 org/systemsoftware/mesosraspberry/Launcher.class

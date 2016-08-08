@@ -9,6 +9,10 @@ import java.util.List;
 public class DataStore {
     String mesosHome;
     String mesosIP;
+    String slaveIP;
+
+
+
     Boolean masterStarted;
     Boolean slaveStarted;
     Boolean dockerStarted;
@@ -16,7 +20,68 @@ public class DataStore {
     Process masterProcess;
     Process slaveProcess;
     Process dockerProcess;
+    String dockerImageName;
+    String dockerContainerID;
+    String dockerSTATUS;
+    String mesosIPPort;
+    String mesosMasterID;
+    String mesosSlaveID;
+    Process slaveKillProcess;
+    String remoteSlaveid;
 
+    public String getSlaveIP() {
+        return slaveIP;
+    }
+
+    public void setSlaveIP(String slaveIP) {
+        this.slaveIP = slaveIP;
+    }
+
+
+
+    public String getRemoteSlaveid(){ return remoteSlaveid;}
+    public void setRemoteSlaveid(String remoteSlaveid) {
+        this.remoteSlaveid=remoteSlaveid;
+    }
+    public String getDockerContainerID(){
+        return dockerContainerID;
+    }
+
+    public void setDockerContainerID(String dockerContainerID)
+    {
+        this.dockerContainerID=dockerContainerID;
+    }
+    public String getDockerSTATUS(){
+        return dockerSTATUS;
+    }
+
+    public void setDockerSTATUS(String dockerSTATUS)
+    {
+        this.dockerSTATUS=dockerSTATUS;
+    }
+    public String getMesosSlaveID() {
+        return mesosSlaveID;
+    }
+
+    public void setMesosSlaveID(String mesosSlaveID) {
+        this.mesosSlaveID = mesosSlaveID;
+    }
+
+    public String getMesosMasterID() {
+        return mesosMasterID;
+    }
+
+    public void setMesosMasterID(String mesosMasterID) {
+        this.mesosMasterID = mesosMasterID;
+    }
+
+    public String getMesosIPPort() {return mesosIPPort;}
+
+    public void setMesosIPPort(String mesosIPPort) { this.mesosIPPort = mesosIPPort; }
+
+    public String getDockerImageName() { return dockerImageName; }
+
+    public void setDockerImageName(String dockerImageName) { this.dockerImageName = dockerImageName;}
 
     public void setMasterProcess(Process masterProcess) {
         this.masterProcess = masterProcess;
@@ -71,4 +136,8 @@ public class DataStore {
     public void setSlaveStarted(Boolean slaveStarted) { this.slaveStarted = slaveStarted;}
 
     public void setDockerStarted(Boolean dockerStarted) {this.dockerStarted = dockerStarted;}
+
+    public void setSlaveKillProcess(Process slaveKillProcess) {this.slaveKillProcess=slaveKillProcess;}
+
+    public Process getSlaveKillProcess(){return slaveKillProcess;}
 }

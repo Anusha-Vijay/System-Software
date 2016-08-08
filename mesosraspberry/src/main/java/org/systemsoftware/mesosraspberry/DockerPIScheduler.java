@@ -5,12 +5,8 @@ import org.apache.mesos.Scheduler;
 import org.apache.mesos.SchedulerDriver;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**
@@ -20,13 +16,16 @@ public class DockerPIScheduler implements Scheduler {
 
     String dockerName;
     AtomicInteger taskIDGenerator = new AtomicInteger();
-    boolean launched;
+    //*boolean launched;
+    int launched;
     List<Protos.TaskInfo> tasksList = new ArrayList<Protos.TaskInfo>();
     List<Protos.TaskID> tasksID = new ArrayList<Protos.TaskID>();
 
     public DockerPIScheduler(String dockerName) {
         this.dockerName = dockerName;
-        this.launched = false;
+        //*this.launched = false;
+        //this is new
+        this.launched=5;
     }
 
     @Override
@@ -46,7 +45,7 @@ public class DockerPIScheduler implements Scheduler {
         List<Protos.OfferID> offerList = new ArrayList<Protos.OfferID>();
         for (Protos.Offer offer : list) {
             System.out.println("Got offer");
-            if (!launched) {
+            if (launched!= 0) {
                 // generate a unique task ID
                 Protos.TaskID taskId = Protos.TaskID.newBuilder()
                         .setValue(Integer.toString(taskIDGenerator.incrementAndGet())).build();
@@ -59,6 +58,7 @@ public class DockerPIScheduler implements Scheduler {
                 // docker image info
                 Protos.ContainerInfo.DockerInfo.Builder dockerInfoBuilder = Protos.ContainerInfo.DockerInfo.newBuilder();
                 dockerInfoBuilder.setImage(dockerName);
+
                 dockerInfoBuilder.setNetwork(Protos.ContainerInfo.DockerInfo.Network.BRIDGE);
 
                 // container info
@@ -90,6 +90,10 @@ public class DockerPIScheduler implements Scheduler {
 
 //                schedulerDriver.launchTasks(offer.getId(), tasksList, filters);
                 schedulerDriver.launchTasks(offerList, tasksList, filters);
+
+                launched=launched-1;
+
+                // url put reqest
             }
         }
 
@@ -98,7 +102,7 @@ public class DockerPIScheduler implements Scheduler {
 
     @Override
     public void offerRescinded(SchedulerDriver schedulerDriver, Protos.OfferID offerID) {
-        launched=false;
+        launched=5;
     //Case when the slave is lost or when Another framework is using the resources offered.
         // Status update is TASK_LOST when we use that offer and the slave is lost
         // Request for resources. accept it. Launch it.

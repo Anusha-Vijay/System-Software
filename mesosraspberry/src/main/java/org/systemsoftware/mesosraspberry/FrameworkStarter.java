@@ -1,54 +1,65 @@
 package org.systemsoftware.mesosraspberry;
 
+import org.apache.mesos.MesosSchedulerDriver;
+import org.apache.mesos.Protos;
 import org.apache.mesos.Protos.FrameworkInfo;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+//import org.json.*;
 
+
+//Environment="MESOS_NATIVE_JAVA_LIBRARY=/usr/lib/libmesos.so";
 /**
  * Created by anusha vijay
  */
 public class FrameworkStarter {
 
     final public static DataStore ds = new DataStore();
+    public static FrameworkInfo.Builder mesosFramework = null;
+    public static DockerPIScheduler dockerScheduler;
+    public static MesosSchedulerDriver driver = null;
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
-            System.out.println("Provide 2 args : IP:Port dockerImageName MesosHome nodeList");
+        if (args.length != 4) {
+            System.out.println("Provide 4 args : IP:Port slaveIP dockerImageName MesosHome nodeList");
             System.exit(1);
         }
 
         int timeOut = 0;
 
-        ds.setMesosHome(args[2]);
+        ds.setMesosHome(args[3]);
         ds.setMesosIP(args[0]);
+        ds.setMesosIPPort(args[0]);
+        ds.setDockerImageName(args[2]);
+        ds.setSlaveIP(args[1]);
 
-        // creating a framework object
-        FrameworkInfo.Builder mesosFramework = FrameworkInfo.newBuilder()
+////         creating a framework object
+        mesosFramework = FrameworkInfo.newBuilder()
                 .setName("MesosOnRaspberry")
                 .setUser("")
                 .setFailoverTimeout(timeOut);
 
-        // Not sure of this
+//         Not sure of this
         if (System.getenv("MESOS_CHECKPOINT") != null) {
             System.out.println("Enabling checkpoint for the framework");
             mesosFramework.setCheckpoint(true);
         }
 
         String dockerName = args[1];
-
-        // Create a scheduler object
-        DockerPIScheduler dockerScheduler = new DockerPIScheduler(dockerName);
+//
+//         Create a scheduler object
+       dockerScheduler = new DockerPIScheduler(dockerName);
 
         mesosFramework.setPrincipal("docker-pi-java");
-//        MesosSchedulerDriver driver =new MesosSchedulerDriver(dockerScheduler, mesosFramework.build(), args[0]);
+        driver =new MesosSchedulerDriver(dockerScheduler, mesosFramework.build(), args[0]);
 
-//        int status = driver.run() == Protos.Status.DRIVER_STOPPED ? 0 : 1;
+        //int status = driver.run() == Protos.Status.DRIVER_STOPPED ? 0 : 1;
 
-        // Ensure that the driver process terminates.
-//        driver.stop();
+//         Ensure that the driver process terminates.
+        //driver.stop();
 
-//        System.exit(status);
+        //System.exit(status);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.setContextPath("/");
@@ -70,7 +81,11 @@ public class FrameworkStarter {
         try {
             appServer.start();
             appServer.join();
-        } finally {
+        } catch (Exception e) {
+            System.out.println("Could not start server");
+            e.printStackTrace();
+        }
+        finally {
             appServer.destroy();
             if(ds.getSlaveProcess() != null)
                 ds.getSlaveProcess().destroy();
@@ -78,5 +93,40 @@ public class FrameworkStarter {
                 ds.getMasterProcess().destroy();
         }
 
+    }
+
+    public static void launchDocker(String dockerName, String mesosIPPort){
+        int timeOut = 0;
+        // creating a framework object
+//        FrameworkInfo.Builder mesosFramework = FrameworkInfo.newBuilder()
+//                .setName("MesosOnRaspberry")
+//                .setUser("")
+//                .setFailoverTimeout(timeOut);
+//
+//        // Not sure of this
+//        if (System.getenv("MESOS_CHECKPOINT") != null) {
+//            System.out.println("Enabling checkpoint for the framework");
+//            mesosFramework.setCheckpoint(true);
+//        }
+//
+//        // Create a scheduler object
+//        DockerPIScheduler dockerScheduler = new DockerPIScheduler(dockerName);
+//
+//        System.out.println("Inside Docker ");
+//        mesosFramework.setPrincipal("docker-pi-java");
+//        MesosSchedulerDriver driver = new MesosSchedulerDriver(dockerScheduler, mesosFramework.build(), mesosIPPort);
+
+        int status = FrameworkStarter.driver.run() == Protos.Status.DRIVER_STOPPED ? 0 : 1;
+
+//         Ensure that the driver process terminates.
+        try {
+            System.out.println("Sleeping for 1 mins ");
+            Thread.sleep(60000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        FrameworkStarter.driver.stop();
+
+//        System.exit(status);
     }
 }
